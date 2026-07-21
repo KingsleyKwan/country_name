@@ -352,6 +352,11 @@ body {
   box-shadow: 0 0 0 3px rgba(42, 143, 111, 0.2);
 }
 
+.toolbar-spacer {
+  width: 44px;
+  flex-shrink: 0;
+}
+
 /* Country list */
 .country-list {
   list-style: none;
@@ -366,18 +371,46 @@ body {
   display: flex;
   align-items: center;
   gap: 14px;
+  width: 100%;
   padding: 14px 16px;
   border-radius: var(--radius);
   background: rgba(255, 255, 255, 0.88);
   border: 1px solid var(--line);
   box-shadow: 0 4px 14px rgba(20, 53, 44, 0.06);
   animation: card-rise 0.35s ease-out both;
+  font-family: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease;
 }
 
-.country-flag {
+.country-item:active {
+  transform: scale(0.98);
+}
+
+.country-flag-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 64px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.country-flag-img {
+  width: 64px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(20, 53, 44, 0.15);
+  border: 1px solid rgba(20, 53, 44, 0.1);
+}
+
+.flag-emoji-fallback {
   font-size: 2.1rem;
   line-height: 1;
-  flex-shrink: 0;
 }
 
 .country-text {
@@ -410,11 +443,128 @@ body {
   color: var(--ink-soft);
 }
 
+.country-action {
+  margin: 6px 0 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--sun);
+}
+
 .empty-state {
   text-align: center;
   color: var(--ink-soft);
   padding: 32px 12px;
   font-size: 1.05rem;
+}
+
+/* Detail */
+.detail-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  padding: 18px 16px;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.detail-flag {
+  width: 160px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(20, 53, 44, 0.18);
+  border: 1px solid rgba(20, 53, 44, 0.1);
+}
+
+.detail-primary {
+  margin: 8px 0 0;
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 800;
+}
+
+.detail-secondary {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.detail-meta {
+  margin: 4px 0 0;
+  font-size: 0.95rem;
+  color: var(--leaf);
+  font-weight: 700;
+}
+
+.detail-note {
+  margin: 4px 0 0;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+.map-heading {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.map-frame {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  background: #e8eef1;
+  margin-bottom: 12px;
+}
+
+.map-frame-practice {
+  margin-top: 4px;
+  margin-bottom: 14px;
+}
+
+.earth-map {
+  width: 100%;
+  height: 240px;
+  z-index: 0;
+}
+
+.map-frame-practice .earth-map {
+  height: 200px;
+}
+
+.map-status {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  background: rgba(243, 247, 244, 0.82);
+  font-weight: 700;
+  color: var(--ink-soft);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.map-status[hidden] {
+  display: none !important;
+}
+
+/* Leaflet tweaks inside our cards */
+.earth-map .leaflet-control-zoom a {
+  width: 34px !important;
+  height: 34px !important;
+  line-height: 34px !important;
+  font-size: 18px !important;
 }
 
 /* Flashcard */
@@ -429,7 +579,7 @@ body {
 .flashcard {
   display: block;
   width: 100%;
-  min-height: 280px;
+  min-height: 260px;
   padding: 0;
   border: none;
   background: transparent;
@@ -442,7 +592,7 @@ body {
 .flashcard-inner {
   position: relative;
   width: 100%;
-  min-height: 280px;
+  min-height: 260px;
   transform-style: preserve-3d;
   transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
 }
@@ -476,14 +626,18 @@ body {
   transform: rotateY(180deg);
 }
 
-.flash-flag {
-  font-size: 5rem;
-  line-height: 1;
-  filter: drop-shadow(0 6px 12px rgba(20, 53, 44, 0.12));
+.flash-flag-img {
+  width: 160px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 8px 18px rgba(20, 53, 44, 0.16);
+  border: 1px solid rgba(20, 53, 44, 0.1);
 }
 
-.flash-flag.small {
-  font-size: 2.4rem;
+.flash-flag-img.small {
+  width: 80px;
+  height: 60px;
 }
 
 .flash-hint {
@@ -527,7 +681,7 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 10px;
-  margin-top: 16px;
+  margin-top: 4px;
 }
 
 @media (max-width: 380px) {

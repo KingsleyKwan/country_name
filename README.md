@@ -13,8 +13,8 @@ by **sley** — mobile-friendly page to teach kids country names in **香港中�
 
 1. On the home screen, choose **常見國家 / Well-known** (default, about 47) or **所有國家 / All countries** (about 200).
 2. Tap **全部** for every country in that list, or tap one continent.
-3. **Browse** the list (search by Chinese or English name).
-4. Tap **練習 / Practice** for flashcards — tap the card to flip, then Next / Prev / Shuffle.
+3. **Browse** the list — each row shows the real flag. Tap a country to see a large flag and its place on the Earth map.
+4. Tap **練習 / Practice** for flashcards (flag image + map below). Tap the card to flip, then Next / Prev / Shuffle.
 
 ## Social preview
 

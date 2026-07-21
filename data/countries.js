@@ -239,6 +239,10 @@ window.COUNTRY_DATA = {
       modeKids: "常見國家",
       modeAll: "所有國家",
       modeHint: "預設係小朋友常見國家；想學晒可以轉「所有國家」",
+      onMap: "喺地球上嘅位置",
+      mapLoading: "地圖載入中…",
+      mapError: "地圖暫時載入唔到",
+      openDetail: "睇地圖",
     },
     en: {
       brand: "Country Names",
@@ -263,6 +267,10 @@ window.COUNTRY_DATA = {
       modeKids: "Well-known",
       modeAll: "All countries",
       modeHint: "Default is well-known countries for kids; switch to All countries to learn more",
+      onMap: "Location on Earth",
+      mapLoading: "Loading map…",
+      mapError: "Could not load the map",
+      openDetail: "See map",
     },
   },
 };
