@@ -246,6 +246,11 @@ window.COUNTRY_DATA = {
       labelName: "國家名稱",
       labelFlag: "國旗",
       labelContinent: "屬於邊個大洲（七大洲）",
+      assignment: "開始作業",
+      assignmentKids: "測驗而家呢個名單：{n} 個常見國家",
+      assignmentAll: "測驗而家呢個名單：全部 {n} 個國家",
+      assignmentTitle: "作業",
+      practiceContinent: "練習",
     },
     en: {
       brand: "Country Names",
@@ -277,6 +282,11 @@ window.COUNTRY_DATA = {
       labelName: "Country name",
       labelFlag: "Flag",
       labelContinent: "Seven continents — belongs to",
+      assignment: "Start assignment",
+      assignmentKids: "Quiz the current list: {n} well-known countries",
+      assignmentAll: "Quiz the current list: all {n} countries",
+      assignmentTitle: "Assignment",
+      practiceContinent: "Practice",
     },
   },
 };

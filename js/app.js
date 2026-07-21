@@ -16,6 +16,8 @@
     deckIndex: 0,
     flipped: false,
     detailCountryId: null,
+    practiceReturn: "browse",
+    isAssignment: false,
   };
 
   const els = {
@@ -26,6 +28,9 @@
     modeHint: document.getElementById("modeHint"),
     btnModeKids: document.getElementById("btnModeKids"),
     btnModeAll: document.getElementById("btnModeAll"),
+    btnAssignment: document.getElementById("btnAssignment"),
+    assignmentTitle: document.getElementById("assignmentTitle"),
+    assignmentSub: document.getElementById("assignmentSub"),
     continentGrid: document.getElementById("continentGrid"),
     viewHome: document.getElementById("view-home"),
     viewBrowse: document.getElementById("view-browse"),
@@ -151,6 +156,13 @@
     return practiceMapApi;
   }
 
+  function updateAssignmentButton() {
+    const n = activeCountries().length;
+    els.assignmentTitle.textContent = t("assignment");
+    const key = state.listMode === "all" ? "assignmentAll" : "assignmentKids";
+    els.assignmentSub.textContent = format(t(key), { n });
+  }
+
   function applyI18n() {
     document.documentElement.lang = state.lang === "zh-HK" ? "zh-HK" : "en";
     els.brand.textContent = t("brand");
@@ -168,6 +180,7 @@
     els.detailNameLabel.textContent = t("labelName");
     els.detailFlagLabel.textContent = t("labelFlag");
     els.detailContinentLabel.textContent = t("labelContinent");
+    updateAssignmentButton();
 
     document.querySelectorAll("[data-i18n]").forEach((node) => {
       const key = node.getAttribute("data-i18n");
@@ -194,10 +207,12 @@
     localStorage.setItem(STORAGE_MODE, state.listMode);
     els.btnModeKids.classList.toggle("is-active", state.listMode === "kids");
     els.btnModeAll.classList.toggle("is-active", state.listMode === "all");
+    updateAssignmentButton();
     renderHome();
   }
 
   function renderHome() {
+    updateAssignmentButton();
     const continents = DATA.continents;
     els.continentGrid.innerHTML = continents
       .map((c) => {
@@ -307,15 +322,30 @@
   }
 
   function openPractice() {
+    state.isAssignment = false;
+    state.practiceReturn = "browse";
+    buildDeck();
+    showView("practice");
+    renderFlashcard();
+  }
+
+  function openAssignment() {
+    state.continentId = "all";
+    state.isAssignment = true;
+    state.practiceReturn = "home";
     buildDeck();
     showView("practice");
     renderFlashcard();
   }
 
   function renderFlashcard() {
-    const cont = continentById(state.continentId);
-    els.practiceTitle.textContent =
-      state.lang === "zh-HK" ? cont.zh : cont.en;
+    if (state.isAssignment) {
+      els.practiceTitle.textContent = `${t("assignmentTitle")} · ${state.deck.length}`;
+    } else {
+      const cont = continentById(state.continentId);
+      els.practiceTitle.textContent =
+        state.lang === "zh-HK" ? cont.zh : cont.en;
+    }
     els.practiceMapHeading.textContent = t("onMap");
 
     if (!state.deck.length) {
@@ -342,7 +372,11 @@
     els.flashFlagImgBack.src = flagSrc;
     els.flashFlagImgBack.alt = primary;
     els.flashHint.textContent = state.flipped ? t("tapToHide") : t("tapToFlip");
-    els.flashContinentFront.textContent = contName;
+    // Assignment: don't reveal continent on the front
+    els.flashContinentFront.textContent = state.isAssignment
+      ? t("tapToFlip")
+      : contName;
+    els.flashContinentFront.hidden = state.isAssignment;
     els.flashContinentBack.textContent = `${t("continentLabel")}: ${contName}`;
     els.flashNamePrimary.textContent = primary;
     els.flashNameSecondary.textContent = secondary;
@@ -355,14 +389,23 @@
       state.flipped ? `${primary}, ${secondary}` : contName
     );
 
-    const api = ensurePracticeMap();
-    CountryMap.showCountry(
-      api,
-      card.id,
-      els.practiceMapStatus,
-      t("mapLoading"),
-      t("mapError")
-    );
+    const mapFrame = document.querySelector(".map-frame-practice");
+    const mapHeading = els.practiceMapHeading;
+    if (state.isAssignment && !state.flipped) {
+      if (mapFrame) mapFrame.hidden = true;
+      mapHeading.hidden = true;
+    } else {
+      if (mapFrame) mapFrame.hidden = false;
+      mapHeading.hidden = false;
+      const api = ensurePracticeMap();
+      CountryMap.showCountry(
+        api,
+        card.id,
+        els.practiceMapStatus,
+        t("mapLoading"),
+        t("mapError")
+      );
+    }
   }
 
   function stepDeck(delta) {
@@ -378,6 +421,7 @@
   els.btnEn.addEventListener("click", () => setLang("en"));
   els.btnModeKids.addEventListener("click", () => setListMode("kids"));
   els.btnModeAll.addEventListener("click", () => setListMode("all"));
+  els.btnAssignment.addEventListener("click", () => openAssignment());
 
   els.continentGrid.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-continent]");
@@ -393,9 +437,22 @@
 
   els.browseBack.addEventListener("click", () => showView("home"));
   els.detailBack.addEventListener("click", () => showView("browse"));
-  els.practiceBack.addEventListener("click", () => showView("browse"));
+  els.practiceBack.addEventListener("click", () => {
+    if (state.practiceReturn === "home") {
+      showView("home");
+    } else {
+      showView("browse");
+      renderBrowse();
+    }
+  });
   els.goPractice.addEventListener("click", () => openPractice());
   els.goBrowse.addEventListener("click", () => {
+    if (state.isAssignment) {
+      state.continentId = "all";
+      showView("browse");
+      renderBrowse();
+      return;
+    }
     showView("browse");
     renderBrowse();
   });
