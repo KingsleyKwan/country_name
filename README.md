@@ -1,6 +1,6 @@
-# 認識國家 · Country Names
+# 認識各國 · Know Different Countries
 
-by **sley** — mobile-friendly page to teach kids country names in **香港中文** and **English**, plus which of the seven continents each belongs to.
+by **sley** — mobile-friendly page to teach kids **many different countries** in **香港中文** and **English**, plus which of the seven continents each belongs to.
 
 **Live site:** https://kingsleykwan.github.io/country_name/
 

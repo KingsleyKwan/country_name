@@ -217,8 +217,8 @@ window.COUNTRY_DATA = {
 
   ui: {
     "zh-HK": {
-      brand: "認識國家",
-      tagline: "一起學國家名稱同七大洲",
+      brand: "認識各國",
+      tagline: "一起認識世界各地唔同嘅國家",
       langZh: "中文",
       langEn: "EN",
       home: "主頁",
@@ -253,8 +253,8 @@ window.COUNTRY_DATA = {
       practiceContinent: "練習",
     },
     en: {
-      brand: "Country Names",
-      tagline: "Learn country names and the seven continents",
+      brand: "Know Different Countries",
+      tagline: "Learn many countries and the seven continents",
       langZh: "中文",
       langEn: "EN",
       home: "Home",
