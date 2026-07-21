@@ -242,7 +242,10 @@ window.COUNTRY_DATA = {
       onMap: "喺地球上嘅位置",
       mapLoading: "地圖載入中…",
       mapError: "地圖暫時載入唔到",
-      openDetail: "睇地圖",
+      openDetail: "撳一下學呢個國家",
+      labelName: "國家名稱",
+      labelFlag: "國旗",
+      labelContinent: "屬於邊個大洲（七大洲）",
     },
     en: {
       brand: "Country Names",
@@ -270,7 +273,10 @@ window.COUNTRY_DATA = {
       onMap: "Location on Earth",
       mapLoading: "Loading map…",
       mapError: "Could not load the map",
-      openDetail: "See map",
+      openDetail: "Tap to learn this country",
+      labelName: "Country name",
+      labelFlag: "Flag",
+      labelContinent: "Seven continents — belongs to",
     },
   },
 };

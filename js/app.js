@@ -49,6 +49,9 @@
     detailNote: document.getElementById("detailNote"),
     detailMapHeading: document.getElementById("detailMapHeading"),
     detailMapStatus: document.getElementById("detailMapStatus"),
+    detailNameLabel: document.getElementById("detailNameLabel"),
+    detailFlagLabel: document.getElementById("detailFlagLabel"),
+    detailContinentLabel: document.getElementById("detailContinentLabel"),
     practiceMapHeading: document.getElementById("practiceMapHeading"),
     practiceMapStatus: document.getElementById("practiceMapStatus"),
     flashcard: document.getElementById("flashcard"),
@@ -119,12 +122,6 @@
     return list;
   }
 
-  function flagImgHtml(id, className, width) {
-    const src = CountryMap.flagUrl(id, width || 80);
-    const emoji = (countryById(id) || {}).flag || "";
-    return `<img class="${className}" src="${src}" alt="" width="${width || 80}" height="${Math.round((width || 80) * 0.75)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling&&(this.nextElementSibling.hidden=false)" /><span class="flag-emoji-fallback" hidden aria-hidden="true">${emoji}</span>`;
-  }
-
   function showView(name) {
     state.view = name;
     const map = {
@@ -168,6 +165,9 @@
     els.btnModeAll.classList.toggle("is-active", state.listMode === "all");
     els.detailMapHeading.textContent = t("onMap");
     els.practiceMapHeading.textContent = t("onMap");
+    els.detailNameLabel.textContent = t("labelName");
+    els.detailFlagLabel.textContent = t("labelFlag");
+    els.detailContinentLabel.textContent = t("labelContinent");
 
     document.querySelectorAll("[data-i18n]").forEach((node) => {
       const key = node.getAttribute("data-i18n");
@@ -236,22 +236,19 @@
     els.countryList.innerHTML = list
       .map((c, i) => {
         const primary = state.lang === "zh-HK" ? c.zh : c.en;
-        const secondary = state.lang === "zh-HK" ? c.en : c.zh;
-        const note =
-          state.lang === "zh-HK" ? c.noteZh || "" : c.noteEn || "";
-        const contName = continentLabel(c.continent);
+        const flagSrc = CountryMap.flagUrl(c.id, 640);
         return `
           <li>
-            <button type="button" class="country-item" data-country="${c.id}" style="animation-delay: ${Math.min(i, 12) * 0.03}s">
-              <span class="country-flag-wrap">
-                ${flagImgHtml(c.id, "country-flag-img", 64)}
-              </span>
+            <button
+              type="button"
+              class="country-item"
+              data-country="${c.id}"
+              style="background-image: url('${flagSrc}'); animation-delay: ${Math.min(i, 12) * 0.03}s"
+              aria-label="${primary}"
+            >
               <div class="country-text">
                 <p class="country-primary">${primary}</p>
-                <p class="country-secondary">${secondary}</p>
-                <p class="country-meta">${t("continentLabel")}: ${contName}</p>
-                ${note ? `<p class="country-note">${note}</p>` : ""}
-                <p class="country-action">${t("openDetail")}</p>
+                <p class="country-hint">${t("openDetail")}</p>
               </div>
             </button>
           </li>
@@ -269,14 +266,18 @@
     const primary = state.lang === "zh-HK" ? c.zh : c.en;
     const secondary = state.lang === "zh-HK" ? c.en : c.zh;
     const note = state.lang === "zh-HK" ? c.noteZh || "" : c.noteEn || "";
+    const contName = continentLabel(c.continent);
 
     els.detailTitle.textContent = primary;
+    els.detailNameLabel.textContent = t("labelName");
+    els.detailFlagLabel.textContent = t("labelFlag");
+    els.detailContinentLabel.textContent = t("labelContinent");
     els.detailPrimary.textContent = primary;
     els.detailSecondary.textContent = secondary;
-    els.detailMeta.textContent = `${t("continentLabel")}: ${continentLabel(c.continent)}`;
+    els.detailMeta.textContent = contName;
     els.detailNote.textContent = note;
     els.detailNote.hidden = !note;
-    els.detailFlag.src = CountryMap.flagUrl(c.id, 160);
+    els.detailFlag.src = CountryMap.flagUrl(c.id, 320);
     els.detailFlag.alt = primary;
     els.detailMapHeading.textContent = t("onMap");
 
