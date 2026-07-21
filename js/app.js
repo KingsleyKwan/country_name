@@ -114,6 +114,31 @@
       : t("labelContinent");
   }
 
+  function placeKind(country) {
+    return country.kind || "country";
+  }
+
+  function openDetailHint(country) {
+    const kind = placeKind(country);
+    if (kind === "region") return t("openDetailRegion");
+    if (kind === "continent") return t("openDetailContinent");
+    return t("openDetailCountry");
+  }
+
+  function nameLabelFor(country) {
+    const kind = placeKind(country);
+    if (kind === "region") return t("labelNameRegion");
+    if (kind === "continent") return t("labelNameContinent");
+    return t("labelNameCountry");
+  }
+
+  function kindNote(country) {
+    const kind = placeKind(country);
+    if (kind === "region") return t("labelKindRegion");
+    if (kind === "continent") return t("labelKindContinent");
+    return "";
+  }
+
   function countryById(id) {
     return DATA.countries.find((c) => c.id === id);
   }
@@ -282,7 +307,7 @@
             >
               <div class="country-text">
                 <p class="country-primary">${primary}</p>
-                <p class="country-hint">${t("openDetail")}</p>
+                <p class="country-hint">${openDetailHint(c)}</p>
               </div>
             </button>
           </li>
@@ -301,16 +326,18 @@
     const secondary = state.lang === "zh-HK" ? c.en : c.zh;
     const note = state.lang === "zh-HK" ? c.noteZh || "" : c.noteEn || "";
     const contName = continentsText(c);
+    const kindExtra = kindNote(c);
+    const combinedNote = [kindExtra, note].filter(Boolean).join(state.lang === "zh-HK" ? " · " : " · ");
 
     els.detailTitle.textContent = primary;
-    els.detailNameLabel.textContent = t("labelName");
+    els.detailNameLabel.textContent = nameLabelFor(c);
     els.detailFlagLabel.textContent = t("labelFlag");
     els.detailContinentLabel.textContent = continentSectionLabel(c);
     els.detailPrimary.textContent = primary;
     els.detailSecondary.textContent = secondary;
     els.detailMeta.textContent = contName;
-    els.detailNote.textContent = note;
-    els.detailNote.hidden = !note;
+    els.detailNote.textContent = combinedNote;
+    els.detailNote.hidden = !combinedNote;
     els.detailFlag.src = CountryMap.flagUrl(c.id, 320);
     els.detailFlag.alt = primary;
     els.detailMapHeading.textContent = t("onMap");
