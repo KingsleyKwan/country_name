@@ -62,6 +62,7 @@
     flashcard: document.getElementById("flashcard"),
     flashFlagImg: document.getElementById("flashFlagImg"),
     flashFlagImgBack: document.getElementById("flashFlagImgBack"),
+    flashNameFront: document.getElementById("flashNameFront"),
     flashHint: document.getElementById("flashHint"),
     flashContinentFront: document.getElementById("flashContinentFront"),
     flashNamePrimary: document.getElementById("flashNamePrimary"),
@@ -95,6 +96,24 @@
     return state.lang === "zh-HK" ? c.zh : c.en;
   }
 
+  function continentsOf(country) {
+    if (Array.isArray(country.continents) && country.continents.length) {
+      return country.continents;
+    }
+    return country.continent ? [country.continent] : [];
+  }
+
+  function continentsText(country) {
+    const join = state.lang === "zh-HK" ? "、" : ", ";
+    return continentsOf(country).map(continentLabel).join(join);
+  }
+
+  function continentSectionLabel(country) {
+    return continentsOf(country).length > 1
+      ? t("labelContinentsMulti")
+      : t("labelContinent");
+  }
+
   function countryById(id) {
     return DATA.countries.find((c) => c.id === id);
   }
@@ -107,7 +126,7 @@
   function countriesForContinent(continentId) {
     const pool = activeCountries();
     if (continentId === "all") return pool.slice();
-    return pool.filter((c) => c.continent === continentId);
+    return pool.filter((c) => continentsOf(c).includes(continentId));
   }
 
   function countForContinent(continentId) {
@@ -281,12 +300,12 @@
     const primary = state.lang === "zh-HK" ? c.zh : c.en;
     const secondary = state.lang === "zh-HK" ? c.en : c.zh;
     const note = state.lang === "zh-HK" ? c.noteZh || "" : c.noteEn || "";
-    const contName = continentLabel(c.continent);
+    const contName = continentsText(c);
 
     els.detailTitle.textContent = primary;
     els.detailNameLabel.textContent = t("labelName");
     els.detailFlagLabel.textContent = t("labelFlag");
-    els.detailContinentLabel.textContent = t("labelContinent");
+    els.detailContinentLabel.textContent = continentSectionLabel(c);
     els.detailPrimary.textContent = primary;
     els.detailSecondary.textContent = secondary;
     els.detailMeta.textContent = contName;
@@ -359,7 +378,7 @@
     const secondary = state.lang === "zh-HK" ? card.en : card.zh;
     const note =
       state.lang === "zh-HK" ? card.noteZh || "" : card.noteEn || "";
-    const contName = continentLabel(card.continent);
+    const contName = continentsText(card);
 
     els.cardProgress.textContent = format(t("of"), {
       current: state.deckIndex + 1,
@@ -368,25 +387,35 @@
 
     const flagSrc = CountryMap.flagUrl(card.id, 160);
     els.flashFlagImg.src = flagSrc;
-    els.flashFlagImg.alt = state.flipped ? primary : "";
     els.flashFlagImgBack.src = flagSrc;
     els.flashFlagImgBack.alt = primary;
-    els.flashHint.textContent = state.flipped ? t("tapToHide") : t("tapToFlip");
-    // Assignment: don't reveal continent on the front
-    els.flashContinentFront.textContent = state.isAssignment
-      ? t("tapToFlip")
-      : contName;
-    els.flashContinentFront.hidden = state.isAssignment;
-    els.flashContinentBack.textContent = `${t("continentLabel")}: ${contName}`;
     els.flashNamePrimary.textContent = primary;
     els.flashNameSecondary.textContent = secondary;
+    els.flashContinentBack.textContent = `${continentSectionLabel(card)}: ${contName}`;
     els.flashNote.textContent = note;
     els.flashNote.hidden = !note;
+
+    if (state.isAssignment) {
+      // Front: name only — hide flag, continents, and map until flip
+      els.flashFlagImg.hidden = true;
+      els.flashNameFront.hidden = false;
+      els.flashNameFront.textContent = primary;
+      els.flashContinentFront.hidden = true;
+      els.flashHint.textContent = state.flipped ? t("tapToHide") : t("tapToReveal");
+      els.flashFlagImg.alt = "";
+    } else {
+      els.flashFlagImg.hidden = false;
+      els.flashNameFront.hidden = true;
+      els.flashContinentFront.hidden = false;
+      els.flashContinentFront.textContent = contName;
+      els.flashHint.textContent = state.flipped ? t("tapToHide") : t("tapToFlip");
+      els.flashFlagImg.alt = state.flipped ? primary : "";
+    }
 
     els.flashcard.classList.toggle("is-flipped", state.flipped);
     els.flashcard.setAttribute(
       "aria-label",
-      state.flipped ? `${primary}, ${secondary}` : contName
+      state.flipped ? `${primary}, ${secondary}, ${contName}` : primary
     );
 
     const mapFrame = document.querySelector(".map-frame-practice");
