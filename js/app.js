@@ -1,6 +1,7 @@
 (function () {
   "use strict";
 
+  const APP_VERSION = "1.3.0";
   const DATA = window.COUNTRY_DATA;
   const STORAGE_LANG = "countryNames.lang";
   const STORAGE_MODE = "countryNames.listMode";
@@ -17,13 +18,15 @@
     flipped: false,
     detailCountryId: null,
     practiceReturn: "browse",
-    isAssignment: false,
+    practiceMode: "practice", // "practice" | "assignment" | "flagQuiz"
   };
 
   const els = {
     brand: document.getElementById("brand"),
     tagline: document.getElementById("tagline"),
-    btnZh: document.getElementById("btnZh"),
+    appVersion: document.getElementById("appVersion"),
+    btnZhHk: document.getElementById("btnZhHk"),
+    btnZhTw: document.getElementById("btnZhTw"),
     btnEn: document.getElementById("btnEn"),
     modeHint: document.getElementById("modeHint"),
     btnModeKids: document.getElementById("btnModeKids"),
@@ -31,6 +34,9 @@
     btnAssignment: document.getElementById("btnAssignment"),
     assignmentTitle: document.getElementById("assignmentTitle"),
     assignmentSub: document.getElementById("assignmentSub"),
+    btnFlagQuiz: document.getElementById("btnFlagQuiz"),
+    flagQuizTitle: document.getElementById("flagQuizTitle"),
+    flagQuizSub: document.getElementById("flagQuizSub"),
     continentGrid: document.getElementById("continentGrid"),
     viewHome: document.getElementById("view-home"),
     viewBrowse: document.getElementById("view-browse"),
@@ -79,11 +85,33 @@
   let practiceMapApi = null;
 
   function t(key) {
-    return DATA.ui[state.lang][key] || DATA.ui.en[key] || key;
+    const pack = DATA.ui[state.lang] || DATA.ui.en;
+    return pack[key] || DATA.ui.en[key] || key;
   }
 
   function format(template, vars) {
     return template.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ""));
+  }
+
+  function isChineseLang() {
+    return state.lang === "zh-HK" || state.lang === "zh-TW";
+  }
+
+  function placeName(place) {
+    if (state.lang === "en") return place.en;
+    if (state.lang === "zh-TW") return place.zhTw || place.zh;
+    return place.zh;
+  }
+
+  function placeNameSecondary(place) {
+    if (isChineseLang()) return place.en;
+    return place.zh;
+  }
+
+  function placeNote(place) {
+    if (state.lang === "en") return place.noteEn || "";
+    if (state.lang === "zh-TW") return place.noteZhTw || place.noteZh || "";
+    return place.noteZh || "";
   }
 
   function continentById(id) {
@@ -93,7 +121,7 @@
   function continentLabel(id) {
     const c = continentById(id);
     if (!c) return id;
-    return state.lang === "zh-HK" ? c.zh : c.en;
+    return placeName(c);
   }
 
   function continentsOf(country) {
@@ -104,7 +132,7 @@
   }
 
   function continentsText(country) {
-    const join = state.lang === "zh-HK" ? "、" : ", ";
+    const join = isChineseLang() ? "、" : ", ";
     return continentsOf(country).map(continentLabel).join(join);
   }
 
@@ -165,6 +193,7 @@
       list = list.filter(
         (c) =>
           c.zh.toLowerCase().includes(q) ||
+          (c.zhTw && c.zhTw.toLowerCase().includes(q)) ||
           c.en.toLowerCase().includes(q)
       );
     }
@@ -203,16 +232,24 @@
   function updateAssignmentButton() {
     const n = activeCountries().length;
     els.assignmentTitle.textContent = t("assignment");
-    const key = state.listMode === "all" ? "assignmentAll" : "assignmentKids";
-    els.assignmentSub.textContent = format(t(key), { n });
+    const assignKey = state.listMode === "all" ? "assignmentAll" : "assignmentKids";
+    els.assignmentSub.textContent = format(t(assignKey), { n });
+    els.flagQuizTitle.textContent = t("flagQuiz");
+    const flagKey = state.listMode === "all" ? "flagQuizAll" : "flagQuizKids";
+    els.flagQuizSub.textContent = format(t(flagKey), { n });
   }
 
   function applyI18n() {
-    document.documentElement.lang = state.lang === "zh-HK" ? "zh-HK" : "en";
+    document.documentElement.lang = state.lang;
     els.brand.textContent = t("brand");
     els.tagline.textContent = t("tagline");
-    els.btnZh.classList.toggle("is-active", state.lang === "zh-HK");
+    if (els.appVersion) els.appVersion.textContent = `v${APP_VERSION}`;
+    els.btnZhHk.classList.toggle("is-active", state.lang === "zh-HK");
+    els.btnZhTw.classList.toggle("is-active", state.lang === "zh-TW");
     els.btnEn.classList.toggle("is-active", state.lang === "en");
+    els.btnZhHk.textContent = t("langZh");
+    els.btnZhTw.textContent = t("langTw");
+    els.btnEn.textContent = t("langEn");
     els.searchInput.placeholder = t("searchPlaceholder");
     els.modeHint.textContent = t("modeHint");
     els.btnModeKids.textContent = t("modeKids");
@@ -261,7 +298,7 @@
     els.continentGrid.innerHTML = continents
       .map((c) => {
         const count = countForContinent(c.id);
-        const name = state.lang === "zh-HK" ? c.zh : c.en;
+        const name = placeName(c);
         const countLabel = format(t("countriesCount"), { n: count });
         const allClass = c.id === "all" ? " is-all" : "";
         return `
@@ -285,8 +322,7 @@
 
   function renderBrowse() {
     const cont = continentById(state.continentId);
-    els.browseTitle.textContent =
-      state.lang === "zh-HK" ? cont.zh : cont.en;
+    els.browseTitle.textContent = placeName(cont);
 
     const list = filteredBrowseList();
     els.browseEmpty.hidden = list.length > 0;
@@ -294,7 +330,7 @@
 
     els.countryList.innerHTML = list
       .map((c, i) => {
-        const primary = state.lang === "zh-HK" ? c.zh : c.en;
+        const primary = placeName(c);
         const flagSrc = CountryMap.flagUrl(c.id, 640);
         return `
           <li>
@@ -322,12 +358,12 @@
     state.detailCountryId = countryId;
     if (!keepView) showView("detail");
 
-    const primary = state.lang === "zh-HK" ? c.zh : c.en;
-    const secondary = state.lang === "zh-HK" ? c.en : c.zh;
-    const note = state.lang === "zh-HK" ? c.noteZh || "" : c.noteEn || "";
+    const primary = placeName(c);
+    const secondary = placeNameSecondary(c);
+    const note = placeNote(c);
     const contName = continentsText(c);
     const kindExtra = kindNote(c);
-    const combinedNote = [kindExtra, note].filter(Boolean).join(state.lang === "zh-HK" ? " · " : " · ");
+    const combinedNote = [kindExtra, note].filter(Boolean).join(" · ");
 
     els.detailTitle.textContent = primary;
     els.detailNameLabel.textContent = nameLabelFor(c);
@@ -368,7 +404,7 @@
   }
 
   function openPractice() {
-    state.isAssignment = false;
+    state.practiceMode = "practice";
     state.practiceReturn = "browse";
     buildDeck();
     showView("practice");
@@ -377,7 +413,16 @@
 
   function openAssignment() {
     state.continentId = "all";
-    state.isAssignment = true;
+    state.practiceMode = "assignment";
+    state.practiceReturn = "home";
+    buildDeck();
+    showView("practice");
+    renderFlashcard();
+  }
+
+  function openFlagQuiz() {
+    state.continentId = "all";
+    state.practiceMode = "flagQuiz";
     state.practiceReturn = "home";
     buildDeck();
     showView("practice");
@@ -385,12 +430,13 @@
   }
 
   function renderFlashcard() {
-    if (state.isAssignment) {
+    if (state.practiceMode === "assignment") {
       els.practiceTitle.textContent = `${t("assignmentTitle")} · ${state.deck.length}`;
+    } else if (state.practiceMode === "flagQuiz") {
+      els.practiceTitle.textContent = `${t("flagQuizTitle")} · ${state.deck.length}`;
     } else {
       const cont = continentById(state.continentId);
-      els.practiceTitle.textContent =
-        state.lang === "zh-HK" ? cont.zh : cont.en;
+      els.practiceTitle.textContent = placeName(cont);
     }
     els.practiceMapHeading.textContent = t("onMap");
 
@@ -401,11 +447,12 @@
     const card = state.deck[state.deckIndex];
     if (!card) return;
 
-    const primary = state.lang === "zh-HK" ? card.zh : card.en;
-    const secondary = state.lang === "zh-HK" ? card.en : card.zh;
-    const note =
-      state.lang === "zh-HK" ? card.noteZh || "" : card.noteEn || "";
+    const primary = placeName(card);
+    const secondary = placeNameSecondary(card);
+    const note = placeNote(card);
     const contName = continentsText(card);
+    const hideMapUntilFlip =
+      state.practiceMode === "assignment" || state.practiceMode === "flagQuiz";
 
     els.cardProgress.textContent = format(t("of"), {
       current: state.deckIndex + 1,
@@ -421,8 +468,9 @@
     els.flashContinentBack.textContent = `${continentSectionLabel(card)}: ${contName}`;
     els.flashNote.textContent = note;
     els.flashNote.hidden = !note;
+    els.flashFlagImg.classList.toggle("is-quiz-flag", state.practiceMode === "flagQuiz");
 
-    if (state.isAssignment) {
+    if (state.practiceMode === "assignment") {
       // Front: name only — hide flag, continents, and map until flip
       els.flashFlagImg.hidden = true;
       els.flashNameFront.hidden = false;
@@ -430,6 +478,13 @@
       els.flashContinentFront.hidden = true;
       els.flashHint.textContent = state.flipped ? t("tapToHide") : t("tapToReveal");
       els.flashFlagImg.alt = "";
+    } else if (state.practiceMode === "flagQuiz") {
+      // Front: flag only — hide name, continents, and map until flip
+      els.flashFlagImg.hidden = false;
+      els.flashNameFront.hidden = true;
+      els.flashContinentFront.hidden = true;
+      els.flashHint.textContent = state.flipped ? t("tapToHide") : t("tapToRevealName");
+      els.flashFlagImg.alt = state.flipped ? primary : t("labelFlag");
     } else {
       els.flashFlagImg.hidden = false;
       els.flashNameFront.hidden = true;
@@ -442,12 +497,16 @@
     els.flashcard.classList.toggle("is-flipped", state.flipped);
     els.flashcard.setAttribute(
       "aria-label",
-      state.flipped ? `${primary}, ${secondary}, ${contName}` : primary
+      state.flipped
+        ? `${primary}, ${secondary}, ${contName}`
+        : state.practiceMode === "flagQuiz"
+          ? t("labelFlag")
+          : primary
     );
 
     const mapFrame = document.querySelector(".map-frame-practice");
     const mapHeading = els.practiceMapHeading;
-    if (state.isAssignment && !state.flipped) {
+    if (hideMapUntilFlip && !state.flipped) {
       if (mapFrame) mapFrame.hidden = true;
       mapHeading.hidden = true;
     } else {
@@ -473,11 +532,13 @@
   }
 
   // Events
-  els.btnZh.addEventListener("click", () => setLang("zh-HK"));
+  els.btnZhHk.addEventListener("click", () => setLang("zh-HK"));
+  els.btnZhTw.addEventListener("click", () => setLang("zh-TW"));
   els.btnEn.addEventListener("click", () => setLang("en"));
   els.btnModeKids.addEventListener("click", () => setListMode("kids"));
   els.btnModeAll.addEventListener("click", () => setListMode("all"));
   els.btnAssignment.addEventListener("click", () => openAssignment());
+  els.btnFlagQuiz.addEventListener("click", () => openFlagQuiz());
 
   els.continentGrid.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-continent]");
@@ -503,7 +564,7 @@
   });
   els.goPractice.addEventListener("click", () => openPractice());
   els.goBrowse.addEventListener("click", () => {
-    if (state.isAssignment) {
+    if (state.practiceMode === "assignment" || state.practiceMode === "flagQuiz") {
       state.continentId = "all";
       showView("browse");
       renderBrowse();

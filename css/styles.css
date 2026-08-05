@@ -97,6 +97,17 @@ body {
   animation: brand-in 0.7s 0.08s ease-out both;
 }
 
+.app-version {
+  margin: 6px 0 0;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  opacity: 0.72;
+  animation: brand-in 0.75s 0.12s ease-out both;
+}
+
 .lang-toggle {
   display: flex;
   flex-shrink: 0;
@@ -109,8 +120,8 @@ body {
 
 .lang-btn {
   min-height: 40px;
-  min-width: 52px;
-  padding: 0 14px;
+  min-width: 44px;
+  padding: 0 12px;
   border: none;
   border-radius: 999px;
   background: transparent;
@@ -193,13 +204,19 @@ body {
   transform: scale(0.97);
 }
 
+.quiz-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
 .btn-assignment {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 4px;
   width: 100%;
-  margin-top: 12px;
   min-height: 64px;
   padding: 14px 16px;
   border: none;
@@ -213,8 +230,20 @@ body {
   transition: transform 0.15s ease, opacity 0.15s;
 }
 
+.btn-flag-quiz {
+  background: linear-gradient(120deg, #1e6b8a 0%, #2a8f6f 55%, #e8a54b 140%);
+  box-shadow: 0 8px 20px rgba(30, 107, 138, 0.28);
+}
+
 .btn-assignment:active {
   transform: scale(0.98);
+}
+
+.flash-flag-img.is-quiz-flag {
+  width: min(72vw, 220px);
+  height: auto;
+  max-height: 160px;
+  object-fit: contain;
 }
 
 .btn-assignment-title {
