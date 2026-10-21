@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const APP_VERSION = "1.3.0";
+  const APP_VERSION = "1.3.1";
   const DATA = window.COUNTRY_DATA;
   const STORAGE_LANG = "countryNames.lang";
   const STORAGE_MODE = "countryNames.listMode";

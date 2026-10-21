@@ -72,7 +72,7 @@ window.COUNTRY_GEO = {
   gt: { lat: 15.8, lng: -90.2, zoom: 7, numeric: 320 },
   gw: { lat: 12.0, lng: -15.2, zoom: 7, numeric: 624 },
   gy: { lat: 4.9, lng: -58.9, zoom: 6, numeric: 328 },
-  hk: { lat: 22.3, lng: 114.2, zoom: 10, numeric: 156 },
+  hk: { lat: 22.3, lng: 114.2, zoom: 10, numeric: null }, // no separate polygon in 110m; 156 is China
   hn: { lat: 15.2, lng: -86.2, zoom: 7, numeric: 340 },
   hr: { lat: 45.1, lng: 15.2, zoom: 7, numeric: 191 },
   ht: { lat: 18.97, lng: -72.3, zoom: 8, numeric: 332 },
@@ -119,7 +119,7 @@ window.COUNTRY_GEO = {
   ml: { lat: 17.6, lng: -4.0, zoom: 5, numeric: 466 },
   mm: { lat: 21.9, lng: 95.9, zoom: 5, numeric: 104 },
   mn: { lat: 46.9, lng: 103.8, zoom: 4, numeric: 496 },
-  mo: { lat: 22.2, lng: 113.5, zoom: 11, numeric: 156 },
+  mo: { lat: 22.2, lng: 113.5, zoom: 11, numeric: null }, // no separate polygon in 110m; 156 is China
   mr: { lat: 21.0, lng: -10.9, zoom: 5, numeric: 478 },
   mt: { lat: 35.9, lng: 14.4, zoom: 10, numeric: 470 },
   mu: { lat: -20.3, lng: 57.5, zoom: 9, numeric: 480 },
